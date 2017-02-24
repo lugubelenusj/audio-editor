@@ -1,41 +1,42 @@
 public class SoundNode {
 
-    private Object data;
-    private ListNode next;
+    private float data;
+    private SoundNode next;
+    private SoundNode nextChannel;
 
-    public SoundNode(Object d) {
+    public SoundNode(float d) {
         data = d;
         next = null;
         nextChannel = null;
     }
 
-    public SoundNode(Object data, ListNode next) {
+    public SoundNode(float data, SoundNode next) {
         this.data = data;
         this.next = next;
     }
 
-    public Object data() {
-      return data;
+    public float data() {
+        return data;
     }
 
     public SoundNode next() {
-      return next;
+        return next;
     }
 
     public SoundNode nextChannel() {
-      return nextChannel;
+        return nextChannel;
     }
 
-    public void setNext(SoundNode newnext) {
-      this.next = newnext;
+    public void setNext(SoundNode newNext) {
+        this.next = newNext;
     }
 
     public void setNextChannel(SoundNode newNextChannel) {
-      this.nextChannel = newNextChannel;
+        this.nextChannel = newNextChannel;
     }
 
-    public void setData(Object newData) {
-      this.data = newData;
+    public void setData(float newData) {
+        this.data = newData;
     }
 
 }
