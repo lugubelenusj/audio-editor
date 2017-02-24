@@ -1,3 +1,5 @@
+import java.util.Iterator;
+
 public class SoundLinkedList implements SoundList {
 
     private float sampleRate;
@@ -23,7 +25,7 @@ public class SoundLinkedList implements SoundList {
     public int getNumChannels() {
         return numChannels;
     }
-    
+
     /**
     * Returns the sample rate, in samples per second
     * @return The sample rate, in samples per second
@@ -123,7 +125,7 @@ public class SoundLinkedList implements SoundList {
     public void addSample(float sample) {
 
         if (numChannels != 1) {
-            throw new Exception();
+            throw new IllegalArgumentException("SoundList has more than 1 channel!");
         }
 
         if (head == null) {
@@ -147,7 +149,7 @@ public class SoundLinkedList implements SoundList {
     public void addSample(float sample[]) {
 
         if (sample.length != numChannels) {
-            throw new Exception();
+            throw new IllegalArgumentException("Sample array size is not the same as the number of channels in the sound list!");
         }
 
         if (sample.length == 1) {
@@ -180,7 +182,34 @@ public class SoundLinkedList implements SoundList {
     * @return iterator
     */
     public Iterator<float[]> iterator() {
+        Iterator<float[]> it = new Iterator<float[]>() {
 
+            private SoundNode current = head;
+            private SoundNode rowPointer = current;
+
+            @Override
+            public boolean hasNext() {
+                return current != null && current.next() != null;
+            }
+
+            @Override
+            public float[] next() {
+                current = current.next();
+                rowPointer = current;
+                float[] data = new float[numChannels];
+
+                // Fill up the data array with each channel of this node.
+                for (int i = 0; i < numChannels; i++) {
+                    data[i] = rowPointer.data();
+                    if (rowPointer.nextChannel() == null) {break;}
+                    rowPointer = rowPointer.nextChannel();
+                }
+
+                return data;
+            }
+
+        };
+        return it;
     }
 
     /**
@@ -204,7 +233,23 @@ public class SoundLinkedList implements SoundList {
     * @return the iterator to traverse the list
     */
     public Iterator<Float> iterator(int channel) {
+        Iterator<Float> it = new Iterator<Float>() {
 
+            private SoundNode current = head;
+
+            @Override
+            public boolean hasNext() {
+                return current != null && current.next() != null;
+            }
+
+            @Override
+            public Float next() {
+                current = current.next();
+                return current.data();
+            }
+
+        };
+        return it;
     }
 
     /**
@@ -237,7 +282,7 @@ public class SoundLinkedList implements SoundList {
     public void makeMono(boolean allowClipping) {
         // Ensures that there are multiple channels.
         if (numChannels <= 1) {
-            throw new Exception("This SoundLinkedList only has 1 channel.");
+            throw new IllegalArgumentException("This SoundLinkedList only has 1 channel.");
         }
 
         SoundNode current = head;
@@ -342,17 +387,21 @@ public class SoundLinkedList implements SoundList {
     public void combine(SoundList clipToCombine, boolean allowClipping) {
 
         if (this.sampleRate != clipToCombine.getSampleRate()) {
-            throw new Exception();
+            throw new IllegalArgumentException("sampleRate of clipToCombine is not the same as this SoundList!");
         }
 
         SoundNode thisCurrent = head;
-        SoundList otherCurrent = clipToCombine;
+        SoundLinkedList otherCurrent = (SoundLinkedList) clipToCombine;
 
         if (this.numSamples < clipToCombine.getNumSamples()) {
             int diff = clipToCombine.getNumSamples() - this.numSamples;
             for (int i = 0; i < numChannels; i++) {
 
             }
+        }
+        else if (this.numSamples > clipToCombine.getNumSamples()) {
+            int diff = this.numSamples - clipToCombine.getNumSamples();
+            //for (int i = 0; i < )
         }
     }
 
@@ -372,7 +421,7 @@ public class SoundLinkedList implements SoundList {
             SoundNode rowPointer = original;
 
             // Goes through each row of channels.
-            for (int j = 0; i < numChannels; j++) {
+            for (int j = 0; j < numChannels; j++) {
                 row[j] = rowPointer.data();
 
                 // Breaks the loop if there are no more channels, prevents null exception.
