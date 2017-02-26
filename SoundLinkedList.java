@@ -55,7 +55,15 @@ public class SoundLinkedList implements SoundList {
     * @param fadeDuration The time (in seconds) to fade in.
     */
     public void fadeIn(float fadeDuration) {
+        float sampleLength = 1 / sampleRate;
+        SoundNode current = head;
 
+        while (current.next() != null) {
+            //current.setData(current.data() * timePassed / fadeDuration);
+            while(current.nextChannel() != null) {
+
+            }
+        }
     }
 
     /**
@@ -149,6 +157,7 @@ public class SoundLinkedList implements SoundList {
     public void addSample(float sample[]) {
 
         if (sample.length != numChannels) {
+            System.out.println("sample.length: " + sample.length + ", numChannels: " + numChannels);//
             throw new IllegalArgumentException("Sample array size is not the same as the number of channels in the sound list!");
         }
 
@@ -158,8 +167,9 @@ public class SoundLinkedList implements SoundList {
 
         if (head == null) {
             head = new SoundNode(sample[0]);
+            tail = head;
             SoundNode current = head;
-            for (int i = 1; i < sample.length; i++) {
+            for (int i = 1; i < numChannels; i++) {
                 current.setNextChannel(new SoundNode(sample[i]));
                 current = current.nextChannel();
             }
@@ -167,8 +177,9 @@ public class SoundLinkedList implements SoundList {
 
         else {
             tail.setNext(new SoundNode(sample[0]));
+            tail = tail.next();
             SoundNode current = tail;
-            for (int i = 1; i < sample.length; i++) {
+            for (int i = 1; i < numChannels; i++) {
                 current.setNextChannel(new SoundNode(sample[i]));
                 current = current.nextChannel();
             }
@@ -203,8 +214,11 @@ public class SoundLinkedList implements SoundList {
                     data[i] = rowPointer.data();
                     if (rowPointer.nextChannel() == null) {break;}
                     rowPointer = rowPointer.nextChannel();
+                    // System.out.println(i);// is this all being skipped
                 }
 
+                //System.out.println("numChannels: " + numChannels);//
+                //System.out.println("data.length: " + data.length);//
                 return data;
             }
 
@@ -235,7 +249,10 @@ public class SoundLinkedList implements SoundList {
     public Iterator<Float> iterator(int channel) {
         Iterator<Float> it = new Iterator<Float>() {
 
+            // Gets to the correct channel.
+            // The problem is that there is no node.nextChannel() for some reason!
             private SoundNode current = head;
+            private boolean positioned = false;
 
             @Override
             public boolean hasNext() {
@@ -244,8 +261,17 @@ public class SoundLinkedList implements SoundList {
 
             @Override
             public Float next() {
-                current = current.next();
+                if (!positioned) {goToChannel();}
+                current = current.nextChannel();
                 return current.data();
+            }
+
+            // Goes to the correct channel.
+            public void goToChannel() {
+                for (int i = 0; i < channel; i++) {
+                    current = current.nextChannel();
+                }
+                positioned = true;
             }
 
         };
