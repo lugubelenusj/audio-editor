@@ -1,0 +1,3 @@
+This program takes in audio files (.wav) and represents the sound data using a multi-channel linked list. Each channel represents a different output that the sound is coming from (for example earphones have 2 channels). Each node of the linked list contains a data value that represents its sound relative to other nodes, a pointer to the next node, and a pointer to the next channel.
+
+The program also supports the ability to add an echo, reverse the list of samples, change the speed, add more another sound sample to the current one, splice in a sample, combine two samples, combine all channels into one, create a fade in and a fade out effect, trim silence, and make a clone (deep copy) of the sample.
